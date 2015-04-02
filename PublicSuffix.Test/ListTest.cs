@@ -113,7 +113,7 @@ namespace PublicSuffix.Test
 		{
 			foreach (string def in definitions)
 			{
-				_subject.AddRule(Rule.Parse(def));
+				_subject.Add(Rule.Parse(def));
 			}
 		}
 	}

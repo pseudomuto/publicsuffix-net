@@ -29,23 +29,8 @@ using System.Linq;
 
 namespace PublicSuffix
 {
-	public class List : IEnumerable<Rule>
+	public class List : HashSet<Rule>
 	{
-		private List<Rule> _rules = new List<Rule>();
-
-		public void AddRule(Rule rule)
-		{
-			if (!_rules.Contains(rule))
-			{
-				_rules.Add(rule);
-			}
-		}
-
-		public void Clear()
-		{
-			_rules.Clear();
-		}
-
 		public Rule GetMatch(string host)
 		{
 			var matches = GetMatches(host).ToList();
@@ -62,26 +47,12 @@ namespace PublicSuffix
 		{
 			if (!string.IsNullOrWhiteSpace(host))
 			{
-				return _rules.Where(r => r.IsMatch(host));
+				return this.Where(rule => rule.IsMatch(host));
 			}
 
 			return Enumerable.Empty<Rule>();
 		}
-
-		#region [IEnumerable implementation]
-
-		public IEnumerator<Rule> GetEnumerator()
-		{
-			return _rules.GetEnumerator();
-		}
-
-		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-		{
-			return GetEnumerator();
-		}
-
-		#endregion
-
+			
 		private static Rule GetExceptionMatch(IEnumerable<Rule> rules)
 		{
 			return rules.FirstOrDefault(rule => rule.Type == "ExceptionRule");
@@ -93,4 +64,4 @@ namespace PublicSuffix
 		}
 	}
 }
-
+	
