@@ -53,5 +53,11 @@ namespace PublicSuffix.Test
 			Assert.AreEqual("NormalRule", Rule.Parse("google.com").Type);
 			Assert.AreEqual("NormalRule", Rule.Parse("verona.it").Type);
 		}
+
+		[TestCase]
+		public void LengthReturnsTheNumberOfLabels()
+		{
+			Assert.AreEqual(3, Rule.Parse("www.google.com").Length);
+		}
 	}
 }

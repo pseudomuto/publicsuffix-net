@@ -36,6 +36,7 @@
     <Compile Include="Rules\WilcardRule.cs" />
     <Compile Include="Rules\NormalRule.cs" />
     <Compile Include="Rule.cs" />
+    <Compile Include="List.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

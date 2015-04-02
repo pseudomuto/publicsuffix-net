@@ -41,6 +41,8 @@ namespace PublicSuffix
 
 		public string[] Labels { get; private set; }
 
+		public int Length { get { return Labels.Length; } }
+
 		public string Type { get { return GetType().Name; } }
 
 		static Rule()
@@ -76,12 +78,22 @@ namespace PublicSuffix
 			var hostLabels = MakeLabels(hostname);
 			var index = 0;
 
-			while (index < Labels.Length && Labels[index] == hostLabels[index])
+			while (index < Labels.Length && index < hostLabels.Length && Labels[index] == hostLabels[index])
 			{
 				index++;
 			}
 
 			return Labels.Length - index == 0;
+		}
+
+		public override int GetHashCode()
+		{
+			return Definition.GetHashCode();
+		}
+
+		public override bool Equals(object obj)
+		{
+			return Definition.Equals((obj as Rule).Definition);
 		}
 
 		public override string ToString()

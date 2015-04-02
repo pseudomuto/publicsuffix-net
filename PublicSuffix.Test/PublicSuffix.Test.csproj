@@ -38,6 +38,7 @@
     <Compile Include="Rules\ExceptionRuleTest.cs" />
     <Compile Include="Rules\WilcardRuleTest.cs" />
     <Compile Include="RuleTest.cs" />
+    <Compile Include="ListTest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
