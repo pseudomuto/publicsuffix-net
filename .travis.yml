@@ -1,0 +1,16 @@
+---
+language: csharp
+solution: PublicSuffix.sln
+
+env:
+  global:
+    NUNIT_VERSION: 2.6.4
+    TEST_ASSEMBLY: "./PublicSuffix.Test/bin/Release/PublicSuffix.Test.dll"
+
+install:
+  - nuget restore PublicSuffix.sln
+  - nuget install NUnit.Runners -Version $NUNIT_VERSION -OutputDirectory runner
+
+script:
+  - xbuild /p:Configuration=Release PublicSuffix.sln
+  - mono ./runner/NUnit.Runners.$NUNIT_VERSION/tools/nunit-console.exe $TEST_ASSEMBLY
