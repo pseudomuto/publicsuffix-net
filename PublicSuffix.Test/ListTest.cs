@@ -32,12 +32,18 @@ namespace PublicSuffix.Test
 	[TestFixture]
 	public class ListTest
 	{
-		private List _subject = new List();
+		private readonly List _subject = new List();
 
 		[TearDown]
 		public void TearDown()
 		{
 			_subject.Clear();
+		}
+
+		[TestCase]
+		public void DefaultListIsLoadedAutomatically()
+		{
+			Assert.Greater(List.DefaultList.Count, 0);
 		}
 
 		[TestCase]

@@ -26,11 +26,24 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
+using System.Reflection;
 
 namespace PublicSuffix
 {
 	public class List : HashSet<Rule>
 	{
+		private static readonly string RESOURCE_NAME = "PublicSuffix.Data.public_suffix_list.dat";
+
+		private static readonly Lazy<List> DEFAULT_LIST = new Lazy<List>(CreateDefaultList);
+
+		public static List DefaultList { get { return DEFAULT_LIST.Value; } }
+	
+		public static List Parse(Stream dataStream)
+		{
+			return new ListParser().Parse(dataStream);
+		}
+
 		public Rule GetMatch(string host)
 		{
 			var matches = GetMatches(host).ToList();
@@ -52,7 +65,7 @@ namespace PublicSuffix
 
 			return Enumerable.Empty<Rule>();
 		}
-			
+
 		private static Rule GetExceptionMatch(IEnumerable<Rule> rules)
 		{
 			return rules.FirstOrDefault(rule => rule.Type == "ExceptionRule");
@@ -61,6 +74,16 @@ namespace PublicSuffix
 		private static Rule GetLongestMatch(IEnumerable<Rule> rules)
 		{
 			return rules.Aggregate((match, current) => match.Length > current.Length ? match : current);
+		}
+
+		private static List CreateDefaultList()
+		{
+			var assembly = Assembly.GetExecutingAssembly();
+
+			using (var stream = assembly.GetManifestResourceStream(RESOURCE_NAME))
+			{
+				return Parse(stream);
+			}
 		}
 	}
 }

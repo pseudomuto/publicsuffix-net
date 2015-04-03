@@ -39,6 +39,7 @@
     <Compile Include="Rules\WilcardRuleTest.cs" />
     <Compile Include="RuleTest.cs" />
     <Compile Include="ListTest.cs" />
+    <Compile Include="ListParserTest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
