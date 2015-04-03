@@ -47,6 +47,15 @@ namespace PublicSuffix.Test
 		}
 
 		[TestCase]
+		public void SettingAllowPrivateDomainsResetsTheDefaultList()
+		{
+			var count = List.DefaultList.Count;
+			List.AllowPrivateDomains = false;
+
+			Assert.Less(List.DefaultList.Count, count);
+		}
+
+		[TestCase]
 		public void AddRuleInsertsRuleIntoTheList()
 		{		
 			AddRules("google.com");

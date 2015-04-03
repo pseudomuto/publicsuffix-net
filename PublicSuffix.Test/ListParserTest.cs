@@ -65,6 +65,24 @@ namespace PublicSuffix.Test
 			}
 		}
 
+		[TestCase]
+		public void ParseCanIgnorePrivateDomains()
+		{
+			var lines = new string[] {
+				"// ac : http://en.wikipedia.org/wiki/.ac",
+				"ac",
+				" ===BEGIN PRIVATE DOMAINS===",
+				"   // com.ac : Some indented comment",
+				"com.ac"
+			};
+
+			using (var stream = StringStream(lines))
+			{
+				var list = _subject.Parse(stream, false);
+				Assert.AreEqual(1, list.Count);
+			}
+		}
+
 		private Stream StringStream(params string[] lines)
 		{
 			var stream = new MemoryStream();

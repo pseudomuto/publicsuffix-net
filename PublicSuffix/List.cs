@@ -35,13 +35,22 @@ namespace PublicSuffix
 	{
 		private static readonly string RESOURCE_NAME = "PublicSuffix.Data.public_suffix_list.dat";
 
-		private static readonly Lazy<List> DEFAULT_LIST = new Lazy<List>(CreateDefaultList);
+		private static Lazy<List> DEFAULT_LIST = new Lazy<List>(CreateDefaultList);
+		private static bool allowPrivateDomains = true;
 
 		public static List DefaultList { get { return DEFAULT_LIST.Value; } }
-	
-		public static List Parse(Stream dataStream)
+
+		public static bool AllowPrivateDomains
 		{
-			return new ListParser().Parse(dataStream);
+			get { return allowPrivateDomains; }
+			set
+			{ 
+				if (allowPrivateDomains != value)
+				{
+					allowPrivateDomains = value;
+					DEFAULT_LIST = new Lazy<List>(CreateDefaultList);
+				}
+			}
 		}
 
 		public Rule GetMatch(string host)
@@ -82,7 +91,7 @@ namespace PublicSuffix
 
 			using (var stream = assembly.GetManifestResourceStream(RESOURCE_NAME))
 			{
-				return Parse(stream);
+				return new ListParser().Parse(stream, AllowPrivateDomains);
 			}
 		}
 	}

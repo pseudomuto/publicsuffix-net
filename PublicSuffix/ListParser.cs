@@ -33,7 +33,7 @@ namespace PublicSuffix
 	{
 		private static readonly Regex COMMENT_PATTERN = new Regex(@"^\/\/");
 
-		public List Parse(Stream dataStream)
+		public List Parse(Stream dataStream, bool allowPrivateDomains = true)
 		{
 			using (var reader = new StreamReader(dataStream))
 			{
@@ -42,6 +42,11 @@ namespace PublicSuffix
 
 				while ((line = reader.ReadLine()) != null)
 				{
+					if (!allowPrivateDomains && line.Contains("===BEGIN PRIVATE DOMAINS==="))
+					{
+						break;
+					}
+
 					if (!IsBlankOrComment(line))
 					{
 						list.Add(Rule.Parse(line.Trim()));
