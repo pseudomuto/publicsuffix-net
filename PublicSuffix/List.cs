@@ -35,10 +35,26 @@ namespace PublicSuffix
 	{
 		private static readonly string RESOURCE_NAME = "PublicSuffix.Data.public_suffix_list.dat";
 
-		private static Lazy<List> DEFAULT_LIST = new Lazy<List>(CreateDefaultList);
+		#region DefaultList Implementation
+
+		private static Lazy<List> defaultList = new Lazy<List>(CreateDefaultList);
+		private static string defaultDataFile = string.Empty;
 		private static bool allowPrivateDomains = true;
 
-		public static List DefaultList { get { return DEFAULT_LIST.Value; } }
+		public static List DefaultList { get { return defaultList.Value; } }
+
+		public static string DefaultDataFile
+		{
+			get { return defaultDataFile; }
+			set
+			{
+				if (defaultDataFile != value)
+				{
+					defaultDataFile = value;
+					defaultList = new Lazy<List>(CreateDefaultList);
+				}
+			}
+		}
 
 		public static bool AllowPrivateDomains
 		{
@@ -48,10 +64,12 @@ namespace PublicSuffix
 				if (allowPrivateDomains != value)
 				{
 					allowPrivateDomains = value;
-					DEFAULT_LIST = new Lazy<List>(CreateDefaultList);
+					defaultList = new Lazy<List>(CreateDefaultList);
 				}
 			}
 		}
+
+		#endregion
 
 		public Rule GetMatch(string host)
 		{
@@ -87,8 +105,22 @@ namespace PublicSuffix
 
 		private static List CreateDefaultList()
 		{
-			var assembly = Assembly.GetExecutingAssembly();
+			return string.IsNullOrWhiteSpace(DefaultDataFile) ? 
+				CreateListFromEmbeddedDataFile() : 
+				CreateListFromSuppliedDataFile();
+		}
 
+		private static List CreateListFromSuppliedDataFile()
+		{
+			using (var stream = new FileStream(DefaultDataFile, FileMode.Open))
+			{
+				return new ListParser().Parse(stream, AllowPrivateDomains);
+			}
+		}
+
+		private static List CreateListFromEmbeddedDataFile()
+		{
+			var assembly = Assembly.GetExecutingAssembly();
 			using (var stream = assembly.GetManifestResourceStream(RESOURCE_NAME))
 			{
 				return new ListParser().Parse(stream, AllowPrivateDomains);

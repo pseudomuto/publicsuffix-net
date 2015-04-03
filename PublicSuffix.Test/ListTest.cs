@@ -26,6 +26,7 @@
 using System;
 using NUnit.Framework;
 using System.Linq;
+using System.IO;
 
 namespace PublicSuffix.Test
 {
@@ -37,6 +38,8 @@ namespace PublicSuffix.Test
 		[TearDown]
 		public void TearDown()
 		{
+			List.AllowPrivateDomains = true;
+			List.DefaultDataFile = string.Empty;
 			_subject.Clear();
 		}
 
@@ -53,6 +56,20 @@ namespace PublicSuffix.Test
 			List.AllowPrivateDomains = false;
 
 			Assert.Less(List.DefaultList.Count, count);
+		}
+
+		[TestCase]
+		public void SettingDefaultDataFileResetsTheDefaultList()
+		{
+			var rules = new string[] {
+				"com", "google.com", "!test.google.com"
+			};
+
+			var path = Path.GetTempFileName();
+			File.WriteAllLines(path, rules);
+
+			List.DefaultDataFile = path;
+			Assert.AreEqual(3, List.DefaultList.Count);
 		}
 
 		[TestCase]
