@@ -37,9 +37,14 @@
     <Compile Include="Rules\NormalRule.cs" />
     <Compile Include="Rule.cs" />
     <Compile Include="List.cs" />
+    <Compile Include="ListParser.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="Rules\" />
+    <Folder Include="Data\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Data\public_suffix_list.dat" />
   </ItemGroup>
 </Project>

@@ -26,11 +26,51 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
+using System.Reflection;
 
 namespace PublicSuffix
 {
 	public class List : HashSet<Rule>
 	{
+		private static readonly string RESOURCE_NAME = "PublicSuffix.Data.public_suffix_list.dat";
+
+		#region DefaultList Implementation
+
+		private static Lazy<List> defaultList = new Lazy<List>(CreateDefaultList);
+		private static string defaultDataFile = string.Empty;
+		private static bool allowPrivateDomains = true;
+
+		public static List DefaultList { get { return defaultList.Value; } }
+
+		public static string DefaultDataFile
+		{
+			get { return defaultDataFile; }
+			set
+			{
+				if (defaultDataFile != value)
+				{
+					defaultDataFile = value;
+					defaultList = new Lazy<List>(CreateDefaultList);
+				}
+			}
+		}
+
+		public static bool AllowPrivateDomains
+		{
+			get { return allowPrivateDomains; }
+			set
+			{ 
+				if (allowPrivateDomains != value)
+				{
+					allowPrivateDomains = value;
+					defaultList = new Lazy<List>(CreateDefaultList);
+				}
+			}
+		}
+
+		#endregion
+
 		public Rule GetMatch(string host)
 		{
 			var matches = GetMatches(host).ToList();
@@ -52,7 +92,7 @@ namespace PublicSuffix
 
 			return Enumerable.Empty<Rule>();
 		}
-			
+
 		private static Rule GetExceptionMatch(IEnumerable<Rule> rules)
 		{
 			return rules.FirstOrDefault(rule => rule.Type == "ExceptionRule");
@@ -61,6 +101,30 @@ namespace PublicSuffix
 		private static Rule GetLongestMatch(IEnumerable<Rule> rules)
 		{
 			return rules.Aggregate((match, current) => match.Length > current.Length ? match : current);
+		}
+
+		private static List CreateDefaultList()
+		{
+			return string.IsNullOrWhiteSpace(DefaultDataFile) ? 
+				CreateListFromEmbeddedDataFile() : 
+				CreateListFromSuppliedDataFile();
+		}
+
+		private static List CreateListFromSuppliedDataFile()
+		{
+			using (var stream = new FileStream(DefaultDataFile, FileMode.Open))
+			{
+				return new ListParser().Parse(stream, AllowPrivateDomains);
+			}
+		}
+
+		private static List CreateListFromEmbeddedDataFile()
+		{
+			var assembly = Assembly.GetExecutingAssembly();
+			using (var stream = assembly.GetManifestResourceStream(RESOURCE_NAME))
+			{
+				return new ListParser().Parse(stream, AllowPrivateDomains);
+			}
 		}
 	}
 }

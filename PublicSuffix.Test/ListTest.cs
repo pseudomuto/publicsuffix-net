@@ -26,18 +26,50 @@
 using System;
 using NUnit.Framework;
 using System.Linq;
+using System.IO;
 
 namespace PublicSuffix.Test
 {
 	[TestFixture]
 	public class ListTest
 	{
-		private List _subject = new List();
+		private readonly List _subject = new List();
 
 		[TearDown]
 		public void TearDown()
 		{
+			List.AllowPrivateDomains = true;
+			List.DefaultDataFile = string.Empty;
 			_subject.Clear();
+		}
+
+		[TestCase]
+		public void DefaultListIsLoadedAutomatically()
+		{
+			Assert.Greater(List.DefaultList.Count, 0);
+		}
+
+		[TestCase]
+		public void SettingAllowPrivateDomainsResetsTheDefaultList()
+		{
+			var count = List.DefaultList.Count;
+			List.AllowPrivateDomains = false;
+
+			Assert.Less(List.DefaultList.Count, count);
+		}
+
+		[TestCase]
+		public void SettingDefaultDataFileResetsTheDefaultList()
+		{
+			var rules = new string[] {
+				"com", "google.com", "!test.google.com"
+			};
+
+			var path = Path.GetTempFileName();
+			File.WriteAllLines(path, rules);
+
+			List.DefaultDataFile = path;
+			Assert.AreEqual(3, List.DefaultList.Count);
 		}
 
 		[TestCase]
