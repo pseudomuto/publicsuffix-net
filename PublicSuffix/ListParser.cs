@@ -32,6 +32,7 @@ namespace PublicSuffix
 	public class ListParser
 	{
 		private static readonly Regex COMMENT_PATTERN = new Regex(@"^\/\/");
+		private static readonly string PRIVATE_DOMAIN_MARKER = "===BEGIN PRIVATE DOMAINS===";
 
 		public List Parse(Stream dataStream, bool allowPrivateDomains = true)
 		{
@@ -42,7 +43,7 @@ namespace PublicSuffix
 
 				while ((line = reader.ReadLine()) != null)
 				{
-					if (!allowPrivateDomains && line.Contains("===BEGIN PRIVATE DOMAINS==="))
+					if (!allowPrivateDomains && line.Contains(PRIVATE_DOMAIN_MARKER))
 					{
 						break;
 					}
