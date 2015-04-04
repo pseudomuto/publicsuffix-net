@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using NUnit.Framework;
+using System.Collections.Generic;
 
 namespace PublicSuffix.Test
 {
@@ -57,11 +58,69 @@ namespace PublicSuffix.Test
 			Assert.IsFalse(Rule.Parse("go.uk").IsMatch("example.co.uk"));
 		}
 
+		[TestCase]
 		public void IsMatchWithFQDN()
 		{
 			Assert.IsTrue(Rule.Parse("com").IsMatch("com."));
 			Assert.IsTrue(Rule.Parse("com").IsMatch("example.com."));
 			Assert.IsTrue(Rule.Parse("com").IsMatch("www.example.com."));
+		}
+
+		[TestCase]
+		public void PartsSplitsDomain()
+		{
+			var hosts = new string[] { "com", "co.com", "mx.co.com" };
+
+			foreach (var host in hosts)
+			{
+				CollectionAssert.AreEqual(host.Split('.'), Rule.Parse(host).Parts);
+			}
+		}
+
+		[TestCase]
+		public void LengthReturnsTheNumberOfParts()
+		{
+			Assert.AreEqual(1, Rule.Parse("com").Length);
+			Assert.AreEqual(2, Rule.Parse("co.com").Length);
+			Assert.AreEqual(3, Rule.Parse("mx.co.com").Length);
+		}
+
+		[TestCase]
+		public void IsAllowedChecksToSeeIfTheHostIsValid()
+		{
+			var rule = Rule.Parse("com");
+			Assert.AreEqual("NormalRule", rule.Type);
+
+			Assert.IsFalse(rule.IsAllowed("com"));
+			Assert.IsTrue(rule.IsAllowed("example.com"));
+			Assert.IsTrue(rule.IsAllowed("www.example.com"));
+
+			Assert.IsFalse(rule.IsAllowed("com."));
+			Assert.IsTrue(rule.IsAllowed("example.com."));
+			Assert.IsTrue(rule.IsAllowed("www.example.com."));
+		}
+
+		[TestCase]
+		public void DecomposeBreaksDownHosts()
+		{
+			var expectations = new Dictionary<string, string[]> {
+				{ "com", new string[] { string.Empty, string.Empty } },
+				{ "example.com", new string[] { "example", "com" } },
+				{ "foo.example.com", new string[] { "foo.example", "com" } },
+
+				// FQDN
+				{ "com.", new string[] { string.Empty, string.Empty } },
+				{ "example.com.", new string[] { "example", "com" } },
+				{ "foo.example.com.", new string[] { "foo.example", "com" } }
+			};
+
+			var rule = Rule.Parse("com");
+			Assert.AreEqual("NormalRule", rule.Type);
+
+			foreach (var host in expectations.Keys)
+			{
+				CollectionAssert.AreEqual(expectations[host], rule.Decompose(host));
+			}
 		}
 	}
 }

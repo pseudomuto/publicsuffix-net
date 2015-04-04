@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using NUnit.Framework;
+using System.Collections.Generic;
 
 namespace PublicSuffix.Test
 {
@@ -57,6 +58,68 @@ namespace PublicSuffix.Test
 			Assert.IsTrue(Rule.Parse("*.uk").IsMatch("co.uk."));
 			Assert.IsTrue(Rule.Parse("*.uk").IsMatch("example.co.uk."));
 			Assert.IsTrue(Rule.Parse("*.uk").IsMatch("www.example.co.uk."));
+		}
+
+		[TestCase]
+		public void PartsSplitsDomainAppropriately()
+		{
+			var expectations = new Dictionary<string, string[]> {
+				{ "*.uk", new string[] { "uk" } },
+				{ "*.co.uk", new string[] { "co", "uk" } }
+			};
+
+			foreach (var host in expectations.Keys)
+			{
+				CollectionAssert.AreEqual(expectations[host], Rule.Parse(host).Parts);
+			}
+		}
+
+		[TestCase]
+		public void LengthReturnsTheNumberOfPartsPlusOne()
+		{
+			Assert.AreEqual(2, Rule.Parse("*.com").Length);
+			Assert.AreEqual(3, Rule.Parse("*.co.com").Length);
+			Assert.AreEqual(4, Rule.Parse("*.mx.co.com").Length);
+		}
+
+		[TestCase]
+		public void IsAllowedChecksToSeeIfTheHostIsValid()
+		{
+			var rule = Rule.Parse("*.uk");
+			Assert.AreEqual("WilcardRule", rule.Type);
+
+			Assert.IsFalse(rule.IsAllowed("uk"));
+			Assert.IsFalse(rule.IsAllowed("co.uk"));
+			Assert.IsTrue(rule.IsAllowed("example.co.uk"));
+			Assert.IsTrue(rule.IsAllowed("www.example.co.uk"));
+
+			Assert.IsFalse(rule.IsAllowed("uk."));
+			Assert.IsFalse(rule.IsAllowed("co.uk."));
+			Assert.IsTrue(rule.IsAllowed("example.co.uk."));
+			Assert.IsTrue(rule.IsAllowed("www.example.co.uk."));
+		}
+
+		[TestCase]
+		public void DecomposeBreaksDownHosts()
+		{
+			var expectations = new Dictionary<string, string[]> {
+				{ "nic.uk", new string[] { string.Empty, string.Empty } },
+				{ "google.co.uk", new string[] { "google", "co.uk" } },
+				{ "foo.google.co.uk", new string[] { "foo.google", "co.uk" } },
+
+				// FQDN
+				{ "nic.uk.", new string[] { string.Empty, string.Empty } },
+				{ "google.co.uk.", new string[] { "google", "co.uk" } },
+				{ "foo.google.co.uk.", new string[] { "foo.google", "co.uk" } }
+			};
+
+			var rule = Rule.Parse("*.uk");
+			Assert.AreEqual("WilcardRule", rule.Type);
+
+			foreach (var host in expectations.Keys)
+			{
+				CollectionAssert.AreEqual(expectations[host], rule.Decompose(host));
+			}
 		}
 	}
 }
