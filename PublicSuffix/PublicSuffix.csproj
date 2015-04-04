@@ -38,6 +38,7 @@
     <Compile Include="Rule.cs" />
     <Compile Include="List.cs" />
     <Compile Include="ListParser.cs" />
+    <Compile Include="Domain.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
