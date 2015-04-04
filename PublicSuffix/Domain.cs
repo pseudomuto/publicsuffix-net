@@ -48,11 +48,25 @@ namespace PublicSuffix
 			} 
 		}
 
+		public bool IsValid
+		{
+			get
+			{
+				var rule = GetRule();
+				return rule != null && rule.IsAllowed(ToString());
+			}
+		}
+
 		public Domain(string topLevelDomain, string secondLevelDomain = null, string subDomain = null)
 		{
 			TopLevelDomain = topLevelDomain;
 			SecondLevelDomain = secondLevelDomain;
 			SubDomain = subDomain;
+		}
+
+		public Rule GetRule()
+		{
+			return List.DefaultList.GetMatch(ToString());
 		}
 
 		public override string ToString()

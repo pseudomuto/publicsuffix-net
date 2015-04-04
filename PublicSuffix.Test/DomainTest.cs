@@ -48,12 +48,21 @@ namespace PublicSuffix.Test
 			Assert.IsTrue(new Domain("com", "google", "www").IsDomain);
 		}
 
-		[TestCase]
-		public void ToStringReturnsFQDN()
+		public void IsValidVerifiesThatThisDomainIsValidInTheDefaultList()
 		{
-			Assert.AreEqual("google.com", new Domain("com", "google").ToString());
-			Assert.AreEqual("www.google.com", new Domain("com", "google", "www").ToString());
-			Assert.AreEqual("a.b.c.google.com", new Domain("com", "google", "a.b.c").ToString());
+			Assert.IsFalse(new Domain("com").IsValid);
+			Assert.IsTrue(new Domain("com", "example").IsValid);
+			Assert.IsTrue(new Domain("com", "example", "www").IsValid);
+
+			// unknown domain
+			Assert.IsFalse(new Domain("qqq").IsValid);
+			Assert.IsFalse(new Domain("qqq", "example").IsValid);
+			Assert.IsFalse(new Domain("qqq", "example", "www").IsValid);
+
+			// restricted domain
+			Assert.IsFalse(new Domain("ke").IsValid);
+			Assert.IsFalse(new Domain("ke", "example").IsValid);
+			Assert.IsTrue(new Domain("ke", "example", "www").IsValid);
 		}
 	}
 }
