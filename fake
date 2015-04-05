@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -e
+
+FAKE="packages/Fake.Core/tools/Fake.exe"
+
+if [ ! -f $FAKE ]; then
+  echo "Installing FAKE..."
+  nuget install Fake.Core -OutputDirectory packages -ExcludeVersion -Prerelease
+  echo "Done."
+fi
+
+mono $FAKE build.fsx "$@"
