@@ -16,10 +16,16 @@ let testReferences = !! "PublicSuffix.Test/**/*.csproj"
 // nuget package details
 let packageAuthors = ["PseudoMuto"]
 let packageName = "PublicSuffixList"
+let packageTitle = "The Public Suffix List"
 let packageDescription = "A Domain Name parser based on the Public Suffix List"
 let packageSummary = packageDescription
 let packageRoot = deployDir
-let packageDir = packageRoot @@ "PublicSuffix"
+let packageDir = packageRoot @@ "PublicSuffixList"
+
+let packageVersion() =
+  let file = buildDir @@ "PublicSuffix.dll"
+  let assemblyName = System.Reflection.AssemblyName.GetAssemblyName(file)
+  assemblyName.Version.ToString(3)
 
 // Restore NuGet Packages
 RestorePackages()
@@ -55,18 +61,26 @@ Target "Package" (fun _ ->
   CopyFile targetDir (buildDir @@ "PublicSuffix.dll.mdb")
   CopyFiles packageDir ["README.md"; "LICENSE"]
 
+  let includedFiles = [
+    ("lib/net45/**.*", None, None);
+    ("README.md", None, None);
+    ("LICENSE", None, None)
+  ]
+
   NuGet (fun p ->
     {p with
-      Files = [("lib/net45/**.*", None, None)]
+      Files = includedFiles
+      Version = packageVersion()
       Authors = packageAuthors
       Project = packageName
+      Title = packageTitle
       Description = packageDescription
       Summary = packageSummary
       OutputPath = packageRoot
       WorkingDir = packageDir
       AccessKey = getBuildParamOrDefault "nugetkey" ""
       Publish = hasBuildParam "nugetkey" }
-  ) "PublicSuffix.nuspec"
+  ) "PublicSuffixList.nuspec"
 )
 
 Target "Default" DoNothing
