@@ -1,8 +1,5 @@
 ---
 language: csharp
 
-install:
-  - nuget restore PublicSuffix.sln
-
 script:
-  - ./fake Test
+  - ./fake
