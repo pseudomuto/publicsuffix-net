@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-FAKE="packages/Fake.Core/tools/Fake.exe"
+FAKE="packages/FAKE.Core/tools/FAKE.exe"
 
 if [ ! -f $FAKE ]; then
   echo "Installing FAKE..."
