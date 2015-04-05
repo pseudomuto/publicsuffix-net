@@ -39,11 +39,15 @@
     <Compile Include="List.cs" />
     <Compile Include="ListParser.cs" />
     <Compile Include="Domain.cs" />
+    <Compile Include="PublicSuffixList.cs" />
+    <Compile Include="Exceptions\InvalidDomainException.cs" />
+    <Compile Include="Exceptions\BlockedDomainException.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="Rules\" />
     <Folder Include="Data\" />
+    <Folder Include="Exceptions\" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Data\public_suffix_list.dat" />

@@ -41,6 +41,7 @@
     <Compile Include="ListTest.cs" />
     <Compile Include="ListParserTest.cs" />
     <Compile Include="DomainTest.cs" />
+    <Compile Include="PublicSuffixListTest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
