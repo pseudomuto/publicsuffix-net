@@ -1,5 +1,5 @@
 ﻿//
-// AssemblyInfo.cs
+// PublicSuffix.cs
 //
 // Author:
 //       PseudoMuto <david.muto@gmail.com>
@@ -23,21 +23,44 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
+using System;
+using System.Linq;
+using System.Collections.Generic;
 
-[assembly: AssemblyTitle("PublicSuffix")]
-[assembly: AssemblyDescription("Domain Name parser based on the Public Suffix List")]
-[assembly: AssemblyConfiguration("Release")]
-[assembly: AssemblyCompany("PseudoMuto")]
-[assembly: AssemblyProduct("PublicSuffix")]
-[assembly: AssemblyCopyright("PseudoMuto")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
+namespace PublicSuffix
+{
+	public static class PublicSuffixList
+	{
+		public static Domain Parse(string host, List list = null)
+		{
+			var rule = (list ?? List.DefaultList).GetMatch(host);
+			EnsureValidHostForRule(host, rule);
 
-[assembly: ComVisible(false)]
-[assembly: InternalsVisibleTo("PublicSuffix.Test")]
+			var parts = rule.Decompose(host);
+			var hosts = new Stack<string>(parts.First().Split('.'));
 
-[assembly: AssemblyVersion("0.1.0")]
-[assembly: AssemblyInformationalVersion("0.1.0")]
+			var tld = parts.Last();
+			var sld = hosts.Count == 0 ? null : hosts.Pop();
+			var sub = hosts.Count == 0 ? null : string.Join(".", hosts.Reverse());
+
+			return new Domain(tld, sld, sub);
+		}
+
+		public static bool IsValid(string host, List list = null)
+		{
+			var rule = (list ?? List.DefaultList).GetMatch(host);
+			return rule != null && rule.IsAllowed(host);
+		}
+
+		private static void EnsureValidHostForRule(string host, Rule rule)
+		{
+			if (rule == null)
+			{
+				throw new InvalidDomainException(host);
+			} else if (!rule.IsAllowed(host))
+			{
+				throw new BlockedDomainException(host);
+			}
+		}
+	}
+}

@@ -27,6 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace PublicSuffix
 {
@@ -41,9 +42,11 @@ namespace PublicSuffix
 
 		public string[] Labels { get; private set; }
 
-		public int Length { get { return Labels.Length; } }
+		public virtual int Length { get { return Parts.Length; } }
 
 		public string Type { get { return GetType().Name; } }
+
+		public virtual string[] Parts { get { return Domain.Split('.'); } }
 
 		static Rule()
 		{
@@ -86,6 +89,19 @@ namespace PublicSuffix
 			return Labels.Length - index == 0;
 		}
 
+		public virtual bool IsAllowed(string host)
+		{
+			return !string.IsNullOrWhiteSpace(Decompose(host).LastOrDefault());
+		}
+
+		protected internal virtual string[] Decompose(string host)
+		{
+			var pattern = string.Concat(@"^(.*)\.(", string.Join(@"\.", Parts), ")$");
+			var match = new Regex(pattern, RegexOptions.IgnoreCase).Match(host.Trim('.'));
+
+			return new string[] { match.Groups[1].Value, match.Groups[2].Value };
+		}
+
 		public override int GetHashCode()
 		{
 			return Definition.GetHashCode();
@@ -101,7 +117,7 @@ namespace PublicSuffix
 			return Definition;
 		}
 
-		private string[] MakeLabels(string host)
+		private static string[] MakeLabels(string host)
 		{
 			return host.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries).Reverse().ToArray();
 		}

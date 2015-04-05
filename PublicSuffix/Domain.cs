@@ -1,5 +1,5 @@
 ﻿//
-// AssemblyInfo.cs
+// Domain.cs
 //
 // Author:
 //       PseudoMuto <david.muto@gmail.com>
@@ -23,21 +23,59 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
+using System;
+using System.Linq;
+using System.Collections.Generic;
 
-[assembly: AssemblyTitle("PublicSuffix")]
-[assembly: AssemblyDescription("Domain Name parser based on the Public Suffix List")]
-[assembly: AssemblyConfiguration("Release")]
-[assembly: AssemblyCompany("PseudoMuto")]
-[assembly: AssemblyProduct("PublicSuffix")]
-[assembly: AssemblyCopyright("PseudoMuto")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
+namespace PublicSuffix
+{
+	public class Domain
+	{
+		public string TopLevelDomain  { get; private set; }
 
-[assembly: ComVisible(false)]
-[assembly: InternalsVisibleTo("PublicSuffix.Test")]
+		public string SecondLevelDomain  { get; private set; }
 
-[assembly: AssemblyVersion("0.1.0")]
-[assembly: AssemblyInformationalVersion("0.1.0")]
+		public string SubDomain  { get; private set; }
+
+		public bool IsDomain
+		{ 
+			get
+			{ 				
+				return !(
+				    string.IsNullOrWhiteSpace(TopLevelDomain) ||
+				    string.IsNullOrWhiteSpace(SecondLevelDomain)
+				); 
+			} 
+		}
+
+		public bool IsValid
+		{
+			get
+			{
+				var rule = GetRule();
+				return rule != null && rule.IsAllowed(ToString());
+			}
+		}
+
+		public Domain(string topLevelDomain, string secondLevelDomain = null, string subDomain = null)
+		{
+			TopLevelDomain = topLevelDomain;
+			SecondLevelDomain = secondLevelDomain;
+			SubDomain = subDomain;
+		}
+
+		public Rule GetRule()
+		{
+			return List.DefaultList.GetMatch(ToString());
+		}
+
+		public override string ToString()
+		{
+			var parts = new List<string> { SubDomain, SecondLevelDomain, TopLevelDomain };
+			parts.RemoveAll(string.IsNullOrWhiteSpace);
+
+			return string.Join(".", parts);
+		}
+	}
+}
+

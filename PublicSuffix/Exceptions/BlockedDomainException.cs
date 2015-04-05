@@ -1,5 +1,5 @@
 ﻿//
-// AssemblyInfo.cs
+// BlockedDomainException.cs
 //
 // Author:
 //       PseudoMuto <david.muto@gmail.com>
@@ -23,21 +23,18 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
+using System;
 
-[assembly: AssemblyTitle("PublicSuffix")]
-[assembly: AssemblyDescription("Domain Name parser based on the Public Suffix List")]
-[assembly: AssemblyConfiguration("Release")]
-[assembly: AssemblyCompany("PseudoMuto")]
-[assembly: AssemblyProduct("PublicSuffix")]
-[assembly: AssemblyCopyright("PseudoMuto")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
+namespace PublicSuffix
+{
+	public class BlockedDomainException : Exception
+	{
+		private static readonly string MESSAGE_FORMAT = "'{0}' is not allowed by the Registry policy";
 
-[assembly: ComVisible(false)]
-[assembly: InternalsVisibleTo("PublicSuffix.Test")]
+		public BlockedDomainException(string host)
+			: base(string.Format(MESSAGE_FORMAT, host))
+		{			
+		}
+	}
+}
 
-[assembly: AssemblyVersion("0.1.0")]
-[assembly: AssemblyInformationalVersion("0.1.0")]

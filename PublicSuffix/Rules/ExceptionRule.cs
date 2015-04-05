@@ -24,11 +24,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Linq;
 
 namespace PublicSuffix
 {
 	internal class ExceptionRule : Rule
 	{
+		public override string[] Parts { get { return base.Parts.Skip(1).ToArray(); } }
+
 		public ExceptionRule(string name)
 			: base(name, name.Substring(1))
 		{

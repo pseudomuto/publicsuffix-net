@@ -24,14 +24,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Text.RegularExpressions;
 
 namespace PublicSuffix
 {
 	internal class WilcardRule : Rule
 	{
+		public override int Length { get { return Parts.Length + 1; } }
+
 		public WilcardRule(string name)
 			: base(name, name.Substring(2))
 		{
+		}
+
+		protected internal override string[] Decompose(string host)
+		{
+			var pattern = string.Concat(@"^(.*)\.(.*?\.", string.Join(@"\.", Parts), ")$");
+			var match = new Regex(pattern, RegexOptions.IgnoreCase).Match(host.Trim('.'));
+
+			return new string[] { match.Groups[1].Value, match.Groups[2].Value };
 		}
 	}
 }
