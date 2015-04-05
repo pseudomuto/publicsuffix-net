@@ -90,5 +90,28 @@ namespace PublicSuffix.Test
 				() => PublicSuffixList.Parse("example.ke")
 			);
 		}
+
+		[TestCase]
+		public void IsValidChecksDomainValidity()
+		{
+			var validDomains = new string[] {
+				"google.com", "google.com.",
+				"www.google.com", "google.co.uk", "google.co.uk."
+			};
+
+			var invalidDomains = new string[] {
+				"google.ke", "google.qqq"
+			};
+
+			foreach (var domain in validDomains)
+			{
+				Assert.IsTrue(PublicSuffixList.IsValid(domain));
+			}
+
+			foreach (var domain in invalidDomains)
+			{
+				Assert.IsFalse(PublicSuffixList.IsValid(domain));
+			}
+		}
 	}
 }

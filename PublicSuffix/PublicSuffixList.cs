@@ -34,14 +34,7 @@ namespace PublicSuffix
 		public static Domain Parse(string host, List list = null)
 		{
 			var rule = (list ?? List.DefaultList).GetMatch(host);
-
-			if (rule == null)
-			{
-				throw new InvalidDomainException(host);
-			} else if (!rule.IsAllowed(host))
-			{
-				throw new BlockedDomainException(host);
-			}
+			EnsureValidHostForRule(host, rule);
 
 			var parts = rule.Decompose(host);
 			var hosts = new Stack<string>(parts.First().Split('.'));
@@ -51,6 +44,23 @@ namespace PublicSuffix
 			var sub = hosts.Count == 0 ? null : string.Join(".", hosts.Reverse());
 
 			return new Domain(tld, sld, sub);
+		}
+
+		public static bool IsValid(string host, List list = null)
+		{
+			var rule = (list ?? List.DefaultList).GetMatch(host);
+			return rule != null && rule.IsAllowed(host);
+		}
+
+		private static void EnsureValidHostForRule(string host, Rule rule)
+		{
+			if (rule == null)
+			{
+				throw new InvalidDomainException(host);
+			} else if (!rule.IsAllowed(host))
+			{
+				throw new BlockedDomainException(host);
+			}
 		}
 	}
 }
