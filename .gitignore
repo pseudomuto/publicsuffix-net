@@ -18,6 +18,8 @@
 x64/
 x86/
 build/
+test/
+deploy/
 bld/
 [Bb]in/
 [Oo]bj/
